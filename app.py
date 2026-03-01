@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -16,5 +16,12 @@ class EmailTicket(db.Model):
     ai_draft_reply = db.Column(db.Text)
     status = db.Column(db.String(20), default="Draft")
 
-with app.app_context:
+with app.app_context():
     db.create_all()
+
+@app.route('/')
+def home():
+    return render_template("index.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)
