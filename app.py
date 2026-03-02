@@ -10,7 +10,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-@app.route('/', method=["GET","POST"])
+@app.route('/', methods=["GET","POST"])
 def home():
     if request.method=="POST":
         customer_email = request.form["customer_email"]
