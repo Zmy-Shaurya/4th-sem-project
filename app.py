@@ -28,5 +28,13 @@ def home():
     
     return render_template("index.html")
 
+@app.route('/dashboard')
+def dashboard():
+    tickets = EmailTicket.query.order_by(EmailTicket.created_at.desc()).all()
+    return render_template("dashboard.html", tickets=tickets)
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h2>Support Dashboard</h2>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Customer Email</th>
+            <th>Subject</th>
+            <th>Status</th>
+        </tr>
+        
+        {% for ticket in tickets %}
+        <tr>
+            <td>{{ ticket.id }}</td>
+            <td>{{ ticket.customer_email }}</td>
+            <td>{{ ticket.subject }}</td>
+            <td>{{ ticket.status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="/">Submit New Ticket</a>
+</body>
+</html>
