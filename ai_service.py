@@ -37,6 +37,19 @@ def analyse_email(email_body):
     response = client.chat.completions.create(
         model="gpt-40-mini",
         messages=[
-            {"role":}
-        ]
+            {"role":"system","content":"You are a professional curtomer support AI."},
+            {"role":"user","content":prompt}
+        ],temperature=0
+
     )
+    content = response.coices[0].message.content
+
+    try:
+        return json.loads(content)
+    except json.JSONDecodeError:
+        return{
+            "intent": "General Inquiry",
+                "sentiment": "Neutral",
+                "priority": "Medium",
+                "draft_reply": "Thank you for reaching out. Our support team will get back to you shortly."
+        }

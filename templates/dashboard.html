@@ -12,6 +12,9 @@
             <th>Customer Email</th>
             <th>Subject</th>
             <th>Status</th>
+            <th>Intent</th>
+            <th>Sentiment</th>
+            <th>Priority</th>
         </tr>
         
         {% for ticket in tickets %}
@@ -20,6 +23,9 @@
             <td>{{ ticket.customer_email }}</td>
             <td>{{ ticket.subject }}</td>
             <td>{{ ticket.status }}</td>
+            <td>{{ ticket.intent }}</td>
+            <td>{{ ticket.sentiment }}</td>
+            <td>{{ ticket.priority }}</td>
         </tr>
         {% endfor %}
     </table>

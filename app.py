@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from models import db, EmailTicket
+from ai_service import analyse_email
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
@@ -17,10 +18,16 @@ def home():
         subject = request.form["subject"]
         body = request.form["body"]
 
-        new_ticket = EmailTicket(
+        ai_result=  analyse_email(body)
+
+        new_ticket= EmailTicket(
             customer_email=customer_email,
             subject=subject,
-            body=body
+            body=body,
+            intent=ai_result["intent"],
+            sentiment=ai_result["sentiment"],
+            priority=ai_result["priority"],
+            ai_draft_reply=ai_result["draft_reply"]
         )
         db.session.add(new_ticket)
         db.session.commit()
