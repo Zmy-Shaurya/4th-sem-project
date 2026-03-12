@@ -37,7 +37,18 @@ def home():
 
 @app.route('/dashboard')
 def dashboard():
-    tickets = EmailTicket.query.order_by(EmailTicket.created_at.desc()).all()
+    query = EmailTicket.query
+
+    priority = request.args.get("priority")
+    if priority:
+        query = query.filter(EmailTicket.priority.ilike(priority))
+
+    search = request.args.get("search")
+    if search:
+        query = query.filter(EmailTicket.subject.contains(search))
+
+    tickets = query.order_by(EmailTicket.created_at.desc()).all()
+
     return render_template("dashboard.html", tickets=tickets)
 
 

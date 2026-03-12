@@ -5,7 +5,17 @@
 </head>
 <body>
     <h2>Support Dashboard</h2>
-
+    <div>
+        <a href="/dashboard">All</a>
+        <a href="/dashboard?priority=High">High</a>
+        <a href="/dashboard?priority=Medium">Medium</a>
+        <a href="/dashboard?priority=Low">Low</a>
+    </div>
+    <br>
+    <form method="GET" action="/dashboard">
+        <input type="text" name="search" placeholder="Search tickets...">
+        <button type="submit">Search</button>
+    </form>
     <table border="1">
         <tr>
             <th>ID</th>
@@ -19,13 +29,24 @@
         
         {% for ticket in tickets %}
         <tr>
+            <td>
+                <a href="/ticket/{{ ticket.id }}">Open</a>
+            </td>
             <td>{{ ticket.id }}</td>
             <td>{{ ticket.customer_email }}</td>
             <td>{{ ticket.subject }}</td>
             <td>{{ ticket.status }}</td>
             <td>{{ ticket.intent }}</td>
             <td>{{ ticket.sentiment }}</td>
-            <td>{{ ticket.priority }}</td>
+            <td>
+                {% if ticket.priority == "high" %}
+                    <span style="color:red; font-weight:bold;">High</span>
+                {% elif ticket.priority == "medium" %}
+                    <span style="color:orange;">Medium</span>
+                {% else %}
+                    <span style="color:green;">Low</span>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>
