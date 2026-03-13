@@ -1,6 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for
 from models import db, EmailTicket
+import threading
 from ai_service import analyse_email
+import logging
+from dotenv import load_dotenv
+load_dotenv()
+
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s"
+)
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
@@ -11,6 +21,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+# --------------------------------------------------------------------------------
 @app.route('/', methods=["GET","POST"])
 def home():
     if request.method=="POST":
@@ -31,10 +42,15 @@ def home():
         )
         db.session.add(new_ticket)
         db.session.commit()
+        thread = threading.Thread(target=process_ticket_ai, args=(new_ticket.id,))
+        thread.start()
+        logging.info(f"New ticket created with ID: {new_ticket.id} and AI analysis started in background thread.")
         return redirect(url_for("dashboard"))
-    
+    logging.error("Failed to create ticket: Missing form data.")
+
     return render_template("index.html")
 
+# --------------------------------------------------------------------------------
 @app.route('/dashboard')
 def dashboard():
     query = EmailTicket.query
@@ -51,7 +67,48 @@ def dashboard():
 
     return render_template("dashboard.html", tickets=tickets)
 
+# --------------------------------------------------------------------------------
+@app.route("/analytics")
+def analytics():
 
+    total = EmailTicket.query.count()
+
+    high_priority = EmailTicket.query.filter_by(priority="High").count()
+
+    negative = EmailTicket.query.filter_by(sentiment="Negative").count()
+
+    return render_template(
+        "analytics.html",
+        total=total,
+        high_priority=high_priority,
+        negative=negative
+    )
+
+# --------------------------------------------------------------------------------
+def process_ticket_ai(ticket_id):
+
+    ticket = EmailTicket.query.get(ticket_id)
+
+    if not ticket:
+        return
+
+    try:
+        result = analyze_email(ticket.body)
+
+        ticket.intent = result["intent"]
+        ticket.sentiment = result["sentiment"]
+        ticket.priority = result["priority"]
+        ticket.ai_draft_reply = result["draft_reply"]
+
+        db.session.commit()
+
+    except Exception as e:
+        result = {
+        "intent": "Unknown",
+        "sentiment": "Neutral",
+        "priority": "Medium",
+        "draft_reply": "Our support team will respond shortly."
+    }
 
 
 if __name__ == "__main__":
